@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zurna AI</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:#080808;
+  color:#fff;
+  font-family:system-ui;
+  min-height:100vh;
+}
+
+/* AÇILIŞ EKRANI */
+.splash{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  background:radial-gradient(circle,#292929,#000 65%);
+  display:grid;
+  place-items:center;
+  animation:bye .7s 2.6s forwards;
+}
+
+.hero{text-align:center}
+
+.logo{
+  font-size:clamp(50px,16vw,95px);
+  font-weight:1000;
+  letter-spacing:-5px;
+  animation:pop .8s;
+}
+
+.slogan{
+  font-size:20px;
+  font-weight:700;
+  opacity:0;
+  animation:up .7s .7s forwards;
+}
+
+.bar{
+  height:3px;
+  background:white;
+  width:0;
+  margin:15px auto;
+  animation:bar 1s 1s forwards;
+}
+
+@keyframes pop{
+  from{
+    opacity:0;
+    transform:scale(.6);
+  }
+}
+
+@keyframes up{
+  to{opacity:.8}
+}
+
+@keyframes bar{
+  to{width:190px}
+}
+
+@keyframes bye{
+  to{
+    opacity:0;
+    visibility:hidden;
+    transform:scale(1.05);
+  }
+}
+
+/* ÜST BAR */
+header{
+  height:64px;
+  border-bottom:1px solid #292929;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 16px;
+}
+
+.brand{
+  font-size:22px;
+  font-weight:900;
+}
+
+button{
+  background:#eee;
+  color:#111;
+  border:0;
+  border-radius:12px;
+  padding:10px 13px;
+  font-weight:800;
+}
+
+/* SOHBET */
+main{
+  max-width:760px;
+  margin:auto;
+  padding:20px 16px 120px;
+}
+
+.welcome{
+  text-align:center;
+  padding-top:20vh;
+}
+
+.welcome h1{
+  font-size:36px;
+  margin:0;
+}
+
+.welcome p{
+  opacity:.55;
+}
+
+.msg{
+  padding:12px 14px;
+  border-radius:17px;
+  margin:10px 0;
+  max-width:84%;
+  line-height:1.45;
+}
+
+.user{
+  margin-left:auto;
+  background:#eee;
+  color:#111;
+}
+
+.ai{
+  background:#181818;
+  border:1px solid #292929;
+}
+
+/* MESAJ YAZMA */
+.composer{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  padding:12px;
+  background:#080808;
+}
+
+.box{
+  max-width:760px;
+  margin:auto;
+  display:flex;
+  gap:8px;
+  background:#171717;
+  border:1px solid #333;
+  border-radius:18px;
+  padding:8px;
+}
+
+input{
+  flex:1;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:#fff;
+  font-size:16px;
+  padding:10px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- AÇILIŞ -->
+<div class="splash">
+  <div class="hero">
+    <div class="logo">ZURNA AI</div>
+
+    <div class="bar"></div>
+
+    <div class="slogan">
+      Zurnanın zırt dediği yer.
+    </div>
+  </div>
+</div>
+
+<!-- UYGULAMA -->
+<header>
+
+  <div class="brand">
+    ZURNA AI
+  </div>
+
+  <button onclick="alert('Zurna AI Pro yakında 😎')">
+    Yükselt
+  </button>
+
+</header>
+
+<main>
+
+  <div class="welcome" id="welcome">
+    <h1>Zurna AI</h1>
+    <p>Ne merak ediyorsan sor.</p>
+  </div>
+
+  <div id="chat"></div>
+
+</main>
+
+<div class="composer">
+
+<form class="box" id="form">
+
+<input
+  id="input"
+  placeholder="Zurna AI'ye sor..."
+  autocomplete="off"
+>
+
+<button>↑</button>
+
+</form>
+
+</div>
+
+<script>
+
+/* CLOUDFLARE WORKER */
+const API_URL =
+"https://nova-ai.faydin19.workers.dev";
+
+let messages=[];
+
+const chat =
+document.querySelector("#chat");
+
+const input =
+document.querySelector("#input");
+
+const welcome =
+document.querySelector("#welcome");
+
+
+function add(text,type){
+
+  welcome.style.display="none";
+
+  const div =
+  document.createElement("div");
+
+  div.className =
+  "msg "+type;
+
+  div.textContent=text;
+
+  chat.appendChild(div);
+
+  window.scrollTo(
+    0,
+    document.body.scrollHeight
+  );
+
+  return div;
+}
+
+
+document.querySelector("#form")
+.onsubmit=async e=>{
+
+  e.preventDefault();
+
+  const text =
+  input.value.trim();
+
+  if(!text)return;
+
+  input.value="";
+
+  add(text,"user");
+
+  messages.push({
+    role:"user",
+    content:text
+  });
+
+  const waiting =
+  add("Zurna düşünüyor…","ai");
+
+  try{
+
+    const response =
+    await fetch(API_URL,{
+
+      method:"POST",
+
+      headers:{
+        "Content-Type":
+        "application/json"
+      },
+
+      body:JSON.stringify({
+        messages
+      })
+
+    });
+
+    const data =
+    await response.json();
+
+    const answer =
+    data.reply ||
+    data.error ||
+    "Bir hata oluştu.";
+
+    waiting.textContent =
+    answer;
+
+    messages.push({
+      role:"assistant",
+      content:answer
+    });
+
+  }
+
+  catch{
+
+    waiting.textContent =
+    "Bağlantı kurulamadı.";
+
+  }
+
+};
+
+</script>
+
+</body>
+</html>
