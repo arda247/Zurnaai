@@ -1,116 +1,137 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#080808">
+<meta name="theme-color" content="#090909">
+
 <title>Zurna AI</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 :root{
-  --z:#f0a51b;
-  --bg:#080808;
+  --bg:#090909;
   --panel:#151515;
+  --panel2:#1d1d1d;
   --line:#303030;
+  --text:#f5f5f5;
+  --muted:#909090;
+  --gold:#f0a51b;
 }
 
-html{scroll-behavior:smooth}
+html,body{
+  margin:0;
+  min-height:100%;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
 
 body{
-  margin:0;
-  background:#080808;
-  color:#fff;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   min-height:100vh;
-  overscroll-behavior:none;
 }
 
-/* ================= INTRO ================= */
+/* =========================================
+   INTRO
+========================================= */
 
-.splash{
+#splash{
   position:fixed;
   inset:0;
-  z-index:1000;
-  background:radial-gradient(circle,#292929,#000 65%);
+  z-index:99999;
   display:grid;
   place-items:center;
-  animation:bye .7s 2.6s forwards;
+  background:
+    radial-gradient(circle at center,#292929 0%,#090909 55%,#000 100%);
+  transition:
+    opacity .55s ease,
+    visibility .55s ease;
 }
 
-.hero{text-align:center}
-
-.logo{
-  font-size:clamp(50px,16vw,95px);
-  font-weight:1000;
-  letter-spacing:-5px;
-  animation:pop .8s;
-}
-
-.slogan{
-  font-size:20px;
-  font-weight:700;
+#splash.hide{
   opacity:0;
-  animation:up .7s .7s forwards;
+  visibility:hidden;
+  pointer-events:none;
 }
 
-.bar{
-  height:3px;
-  background:#f0a51b;
+.splashInner{
+  text-align:center;
+  padding:20px;
+}
+
+.splashLogo{
+  font-size:clamp(45px,15vw,88px);
+  font-weight:1000;
+  letter-spacing:-4px;
+  animation:logoIn .65s ease both;
+}
+
+.splashBar{
   width:0;
-  margin:15px auto;
-  border-radius:20px;
-  animation:bar 1s 1s forwards;
+  height:3px;
+  margin:14px auto;
+  background:var(--gold);
+  border-radius:99px;
+  animation:barIn .8s .55s forwards;
 }
 
-@keyframes pop{
-  from{opacity:0;transform:scale(.6)}
+.splashSlogan{
+  opacity:0;
+  font-weight:700;
+  font-size:18px;
+  animation:sloganIn .6s .9s forwards;
 }
 
-@keyframes up{
-  to{opacity:.8}
-}
-
-@keyframes bar{
-  to{width:190px}
-}
-
-@keyframes bye{
-  to{
+@keyframes logoIn{
+  from{
     opacity:0;
-    visibility:hidden;
-    transform:scale(1.05)
+    transform:scale(.72);
+  }
+  to{
+    opacity:1;
+    transform:scale(1);
   }
 }
 
-/*
-  Intro sırasında uygulama tamamen kilitli.
-  JS intro bitince bu class'ı mutlaka kaldıracak.
-*/
-body.intro-active header,
-body.intro-active main,
-body.intro-active .composer,
-body.intro-active #side,
-body.intro-active #sideBackdrop{
-  visibility:hidden!important;
-  pointer-events:none!important;
+@keyframes barIn{
+  to{
+    width:185px;
+  }
 }
 
-/* ================= HEADER ================= */
+@keyframes sloganIn{
+  to{
+    opacity:.8;
+  }
+}
+
+/* Intro sadece splash'i kapatır.
+   Uygulamanın kendisini visibility:hidden yapmıyoruz.
+   Böylece JS hata verse bile ekran kilitli kalmaz. */
+
+/* =========================================
+   HEADER
+========================================= */
 
 header{
-  height:64px;
-  border-bottom:1px solid #292929;
+  height:62px;
+  position:sticky;
+  top:0;
+  z-index:30;
+
   display:flex;
   align-items:center;
   justify-content:space-between;
-  padding:0 16px;
-  position:sticky;
-  top:0;
-  z-index:20;
-  background:rgba(8,8,8,.88);
-  backdrop-filter:blur(16px);
+
+  padding:0 14px;
+
+  background:rgba(9,9,9,.9);
+  backdrop-filter:blur(14px);
+
+  border-bottom:1px solid #242424;
 }
 
 .headerLeft{
@@ -120,985 +141,1070 @@ header{
 }
 
 .brand{
-  font-size:22px;
+  font-size:21px;
   font-weight:900;
-  letter-spacing:-.4px;
-  cursor:pointer;
   user-select:none;
+  cursor:pointer;
 }
 
 button{
-  background:#eee;
-  color:#111;
-  border:0;
-  border-radius:12px;
-  padding:10px 13px;
-  font-weight:800;
   font-family:inherit;
   cursor:pointer;
 }
 
-/* ================= ANA EKRAN ================= */
+.topButton{
+  border:0;
+  border-radius:11px;
+  padding:9px 12px;
 
-main{
-  max-width:820px;
-  margin:auto;
-  padding:20px 16px 125px;
-}
-
-.welcome{
-  text-align:center;
-  padding-top:20vh;
-}
-
-.welcome h1{
-  font-size:36px;
-  margin:0;
-}
-
-.welcome p{opacity:.55}
-
-.quick{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  justify-content:center;
-  margin-top:22px;
-}
-
-.quick button{
-  background:#151515;
-  color:#eee;
-  border:1px solid #333;
-  font-weight:600;
-}
-
-/* ================= MESAJLAR ================= */
-
-.msg{
-  padding:12px 14px;
-  border-radius:17px;
-  margin:10px 0;
-  max-width:84%;
-  line-height:1.45;
-  white-space:pre-wrap;
-  word-break:break-word;
-  position:relative;
-}
-
-.user{
-  margin-left:auto;
   background:#eee;
   color:#111;
+
+  font-weight:800;
 }
 
-.ai{
-  background:#181818;
-  border:1px solid #292929;
-}
+.menuButton{
+  width:41px;
+  height:41px;
 
-.msgActions{
-  display:flex;
-  gap:5px;
-  margin-top:8px;
-  opacity:.55;
-}
+  border:0;
+  border-radius:11px;
 
-.msgActions button{
-  padding:5px 8px;
-  font-size:11px;
-  background:#2a2a2a;
-  color:#eee;
-}
-
-.ai .msgActions{justify-content:flex-start}
-.user .msgActions{justify-content:flex-end}
-
-/* ================= COMPOSER ================= */
-
-.composer{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  padding:12px;
-  padding-bottom:max(12px,env(safe-area-inset-bottom));
-  background:#080808;
-  z-index:19;
-}
-
-.composerInner{
-  position:relative;
-  max-width:820px;
-  margin:auto;
-}
-
-.box{
-  width:100%;
-  display:flex;
-  gap:8px;
-  align-items:flex-end;
-  background:#171717;
-  border:1px solid #333;
-  border-radius:18px;
-  padding:8px;
-  box-shadow:0 8px 30px #0007;
-}
-
-#input{
-  flex:1;
-  width:100%;
-  min-height:42px;
-  max-height:130px;
-  resize:none;
-  overflow:auto;
-
-  border:0!important;
-  outline:0!important;
-  box-shadow:none!important;
-
-  background:transparent!important;
-  color:#fff!important;
-
-  caret-color:#f0a51b;
-
-  font-family:inherit;
-  font-size:16px;
-  line-height:1.35;
-
-  padding:10px 4px;
-
-  border-radius:0;
-
-  -webkit-appearance:none;
-  appearance:none;
-}
-
-#input:focus,
-#input:focus-visible{
-  border:0!important;
-  outline:0!important;
-  box-shadow:none!important;
-  background:transparent!important;
-}
-
-#input::placeholder{
-  color:#888;
-  opacity:1;
-}
-
-.box:focus-within{
-  border-color:#555;
-}
-
-.iconBtn{
-  min-width:42px;
-  width:42px;
-  height:42px;
-  padding:0;
-  display:grid;
-  place-items:center;
-  border-radius:12px;
-  background:#242424;
+  background:#1b1b1b;
   color:#fff;
-  font-size:18px;
-}
 
-.sendBtn{
-  min-width:42px;
-  width:42px;
-  height:42px;
-  padding:0;
-  border-radius:12px;
-  background:#f0a51b;
-  color:#111;
   font-size:20px;
 }
 
-.sendBtn:disabled{opacity:.45}
-
-#attachInput{display:none}
-
-#filePreview{
-  display:none;
-  margin:0 auto 7px;
-  background:#151515;
-  border:1px solid #333;
-  border-radius:14px;
-  padding:8px 12px;
-  font-size:12px;
-}
-
-/* ================= + MENÜ ================= */
-
-.attachMenu{
-  display:none;
-  position:absolute;
-  left:0;
-  bottom:62px;
-  z-index:80;
-  width:215px;
-  background:#1b1b1b;
-  border:1px solid #383838;
-  border-radius:16px;
-  padding:7px;
-  box-shadow:0 16px 45px #000a;
-}
-
-.attachMenu.show{display:block}
-
-.attachMenu button{
-  width:100%;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  background:transparent;
-  color:#fff;
-  text-align:left;
-  padding:11px;
-  border-radius:10px;
-}
-
-.attachMenu button:active{
-  background:#2a2a2a;
-}
-
-/* ================= TYPING ================= */
-
-#typingDots{
-  display:inline-flex;
-  gap:4px;
-  align-items:center;
-}
-
-#typingDots i{
-  width:6px;
-  height:6px;
-  border-radius:50%;
-  background:#aaa;
-  animation:zdot 1s infinite;
-}
-
-#typingDots i:nth-child(2){animation-delay:.15s}
-#typingDots i:nth-child(3){animation-delay:.3s}
-
-@keyframes zdot{
-  0%,60%,100%{
-    transform:translateY(0);
-    opacity:.35
-  }
-  30%{
-    transform:translateY(-4px);
-    opacity:1
-  }
-}
-
-/* ================= SOL MENÜ ================= */
-
-#side{
-  position:fixed;
-  z-index:50;
-  left:-290px;
-  top:0;
-  bottom:0;
-  width:280px;
-  background:#111;
-  border-right:1px solid #292929;
-  padding:14px;
-  transition:.25s;
-  overflow:auto;
-  box-shadow:18px 0 50px #0008;
-}
-
-#side.open{left:0}
+/* =========================================
+   SIDEBAR
+========================================= */
 
 #sideBackdrop{
-  display:none;
   position:fixed;
   inset:0;
-  z-index:45;
-  background:#0009;
+
+  display:none;
+
+  z-index:80;
+
+  background:rgba(0,0,0,.7);
   backdrop-filter:blur(2px);
 }
 
-#sideBackdrop.show{display:block}
+#sideBackdrop.show{
+  display:block;
+}
 
-.sideTop{
+#sidebar{
+  position:fixed;
+  z-index:90;
+
+  top:0;
+  bottom:0;
+  left:-300px;
+
+  width:285px;
+
+  padding:14px;
+
+  background:#111;
+
+  border-right:1px solid #2d2d2d;
+
+  overflow:auto;
+
+  transition:left .23s ease;
+
+  box-shadow:20px 0 60px rgba(0,0,0,.5);
+}
+
+#sidebar.open{
+  left:0;
+}
+
+.sideHeader{
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:space-between;
+
+  margin-bottom:15px;
 }
 
-.newChat{
-  width:100%;
-  margin:16px 0;
-  background:#f0a51b;
+.sideHeader b{
+  font-size:19px;
 }
 
-#searchChat{
-  width:100%;
-  background:#191919;
+.sideClose{
+  width:38px;
+  height:38px;
+
+  border:0;
+  border-radius:10px;
+
+  background:#252525;
   color:#fff;
+
+  font-size:20px;
+}
+
+.sideWide{
+  width:100%;
+
+  border:0;
+  border-radius:12px;
+
+  padding:11px;
+
+  margin:5px 0;
+
+  background:#1c1c1c;
+  color:#fff;
+
+  font-weight:700;
+}
+
+.sideWide.primary{
+  background:var(--gold);
+  color:#111;
+}
+
+#chatSearch{
+  width:100%;
+
+  margin:8px 0 12px;
+
+  padding:11px;
+
   border:1px solid #333;
   border-radius:12px;
-  padding:10px;
-  outline:none;
+
+  outline:0;
+
+  background:#181818;
+  color:#fff;
+
+  font-size:14px;
 }
 
-#history button{
-  display:block;
-  width:100%;
-  text-align:left;
-  margin:6px 0;
+.historyRow{
+  display:flex;
+  align-items:center;
+  gap:5px;
+}
+
+.historyOpen{
+  flex:1;
+
+  min-width:0;
+
+  border:0;
+  border-radius:10px;
+
+  margin:3px 0;
+
+  padding:10px;
+
   background:#191919;
-  color:#fff;
+  color:#eee;
+
+  text-align:left;
+
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
 
-.historyRow{
-  display:flex;
-  gap:4px;
-  align-items:center;
-}
-
-.historyRow>button:first-child{flex:1}
-
 .historyMore{
-  width:36px!important;
-  text-align:center!important;
-  padding:8px!important;
+  width:37px;
+  height:37px;
+
+  border:0;
+  border-radius:10px;
+
+  background:#191919;
+  color:#eee;
 }
 
-/* ================= KULLANIM ================= */
-
-.usageCard{
+.usage{
   margin:12px 0;
-  background:#171717;
-  border:1px solid #2d2d2d;
-  border-radius:15px;
+
   padding:12px;
+
+  background:#171717;
+
+  border:1px solid #2d2d2d;
+  border-radius:14px;
 }
 
-.usageTop{
+.usageHead{
   display:flex;
   justify-content:space-between;
+
+  margin-bottom:8px;
+
   font-size:12px;
-  margin-bottom:7px;
 }
 
-.usageBar{
+.usageTrack{
   height:7px;
+
   background:#292929;
-  border-radius:10px;
+
+  border-radius:20px;
+
   overflow:hidden;
 }
 
-.usageFill{
-  height:100%;
-  background:#f0a51b;
+#usageFill{
   width:0;
+  height:100%;
+
+  background:var(--gold);
 }
 
-.wide{
-  width:100%;
-  margin-top:10px;
+/* =========================================
+   MAIN
+========================================= */
+
+main{
+  width:min(820px,100%);
+
+  margin:auto;
+
+  padding:
+    18px
+    15px
+    135px;
 }
 
-/* ================= MODALLAR ================= */
+#welcome{
+  padding-top:18vh;
 
-#loginModal,
-#proModal,
-#settingsModal{
-  display:none;
-  position:fixed;
-  inset:0;
-  z-index:120;
-  background:#000b;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
+  text-align:center;
 }
 
-.card{
-  width:min(390px,100%);
-  background:#151515;
-  border:1px solid #333;
-  border-radius:22px;
-  padding:22px;
+#welcome h1{
+  margin:0;
+
+  font-size:36px;
 }
 
-.card h2{margin-top:0}
-
-.card input{
-  width:100%;
-  background:#222;
-  color:#fff;
-  border:1px solid #333;
-  border-radius:12px;
-  margin:6px 0;
-  padding:12px;
+#welcome p{
+  color:var(--muted);
 }
 
-.settingRow{
+.quickButtons{
   display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  padding:12px 0;
-  border-bottom:1px solid #292929;
-}
+  flex-wrap:wrap;
 
-.settingRow select{
-  background:#222;
-  color:#fff;
-  border:1px solid #333;
-  border-radius:10px;
-  padding:8px;
-}
-
-/* ================= ADMIN ================= */
-
-#adminLoginModal,
-#adminPanel{
-  display:none;
-  position:fixed;
-  inset:0;
-  z-index:220;
-  background:rgba(0,0,0,.88);
-  align-items:center;
   justify-content:center;
-  padding:18px;
-}
 
-.adminCard{
-  width:min(430px,100%);
-  max-height:94vh;
-  overflow:auto;
-  background:#121212;
-  border:1px solid #343434;
-  border-radius:22px;
-  padding:22px;
-  box-shadow:0 24px 80px #000;
-}
-
-.adminCard h2{margin:0 0 8px}
-.adminCard p{opacity:.65}
-
-.adminCard input,
-.adminCard textarea{
-  width:100%;
-  background:#1d1d1d;
-  color:#fff;
-  border:1px solid #383838;
-  border-radius:12px;
-  padding:12px;
-  margin:7px 0;
-}
-
-.adminCard textarea{
-  min-height:95px;
-  resize:vertical;
-}
-
-.adminActions{
-  display:flex;
   gap:8px;
-  margin-top:10px;
+
+  margin-top:22px;
 }
 
-.adminActions button{flex:1}
+.quickButtons button{
+  border:1px solid #333;
+  border-radius:13px;
 
-#adminPanel button,
-#adminLoginModal button{
-  background:#f0a51b;
+  padding:10px 12px;
+
+  background:#161616;
+  color:#eee;
+}
+
+/* =========================================
+   MESSAGES
+========================================= */
+
+.message{
+  max-width:86%;
+
+  margin:10px 0;
+
+  padding:12px 14px;
+
+  border-radius:17px;
+
+  line-height:1.5;
+
+  white-space:pre-wrap;
+  word-wrap:break-word;
+}
+
+.message.user{
+  margin-left:auto;
+
+  background:#eee;
   color:#111;
 }
 
-#adminPanel .adminActions button:last-child,
-#adminLoginModal .adminActions button:last-child{
+.message.assistant{
+  margin-right:auto;
+
+  background:#181818;
+
+  border:1px solid #292929;
+}
+
+.messageActions{
+  display:flex;
+
+  gap:5px;
+
+  margin-top:9px;
+}
+
+.messageActions button{
+  border:0;
+  border-radius:8px;
+
+  padding:5px 8px;
+
+  background:#292929;
+  color:#ddd;
+
+  font-size:11px;
+}
+
+.message.user .messageActions{
+  justify-content:flex-end;
+}
+
+.typing{
+  display:flex;
+  gap:5px;
+}
+
+.typing span{
+  width:6px;
+  height:6px;
+
+  border-radius:50%;
+
+  background:#aaa;
+
+  animation:typing 1s infinite;
+}
+
+.typing span:nth-child(2){
+  animation-delay:.15s;
+}
+
+.typing span:nth-child(3){
+  animation-delay:.3s;
+}
+
+@keyframes typing{
+  0%,60%,100%{
+    transform:translateY(0);
+    opacity:.35;
+  }
+
+  30%{
+    transform:translateY(-4px);
+    opacity:1;
+  }
+}
+
+/* =========================================
+   COMPOSER
+========================================= */
+
+.composer{
+  position:fixed;
+
+  left:0;
+  right:0;
+  bottom:0;
+
+  z-index:35;
+
+  padding:
+    10px
+    12px
+    max(12px,env(safe-area-inset-bottom));
+
+  background:
+    linear-gradient(
+      transparent,
+      #090909 22%
+    );
+}
+
+.composerInner{
+  position:relative;
+
+  width:min(820px,100%);
+
+  margin:auto;
+}
+
+#attachmentPreview{
+  display:none;
+
+  margin-bottom:7px;
+
+  padding:9px 12px;
+
+  border:1px solid #333;
+  border-radius:13px;
+
+  background:#161616;
+
+  font-size:12px;
+}
+
+.composerBox{
+  display:flex;
+  align-items:flex-end;
+  gap:7px;
+
+  padding:8px;
+
+  background:#171717;
+
+  border:1px solid #333;
+  border-radius:19px;
+
+  box-shadow:0 8px 35px rgba(0,0,0,.45);
+}
+
+#promptInput{
+  flex:1;
+
+  min-width:0;
+  min-height:42px;
+  max-height:140px;
+
+  resize:none;
+
+  padding:10px 3px;
+
+  border:0 !important;
+  outline:0 !important;
+  box-shadow:none !important;
+
+  background:transparent !important;
+  color:#fff !important;
+
+  caret-color:var(--gold);
+
+  font:inherit;
+  font-size:16px;
+  line-height:1.4;
+
+  -webkit-appearance:none;
+  appearance:none;
+}
+
+#promptInput:focus,
+#promptInput:focus-visible{
+  border:0 !important;
+  outline:0 !important;
+  box-shadow:none !important;
+}
+
+#promptInput::placeholder{
+  color:#858585;
+}
+
+.iconButton{
+  flex:0 0 42px;
+
+  width:42px;
+  height:42px;
+
+  display:grid;
+  place-items:center;
+
+  padding:0;
+
+  border:0;
+  border-radius:12px;
+
+  background:#252525;
+  color:#fff;
+
+  font-size:18px;
+}
+
+#sendButton{
+  flex:0 0 42px;
+
+  width:42px;
+  height:42px;
+
+  padding:0;
+
+  border:0;
+  border-radius:12px;
+
+  background:var(--gold);
+  color:#111;
+
+  font-size:20px;
+  font-weight:900;
+}
+
+#sendButton:disabled{
+  opacity:.45;
+}
+
+/* =========================================
+   + MENU
+========================================= */
+
+#plusMenu{
+  position:absolute;
+
+  left:0;
+  bottom:62px;
+
+  z-index:60;
+
+  width:220px;
+
+  display:none;
+
+  padding:7px;
+
+  background:#1b1b1b;
+
+  border:1px solid #383838;
+  border-radius:16px;
+
+  box-shadow:0 15px 45px rgba(0,0,0,.7);
+}
+
+#plusMenu.show{
+  display:block;
+}
+
+#plusMenu button{
+  width:100%;
+
+  display:flex;
+  align-items:center;
+
+  gap:11px;
+
+  padding:12px;
+
+  border:0;
+  border-radius:10px;
+
+  background:transparent;
+  color:#fff;
+
+  text-align:left;
+
+  font-weight:650;
+}
+
+#plusMenu button:hover{
+  background:#292929;
+}
+
+#hiddenFileInput{
+  display:none;
+}
+
+/* =========================================
+   MODALS
+========================================= */
+
+.modal{
+  position:fixed;
+
+  inset:0;
+
+  z-index:150;
+
+  display:none;
+  align-items:center;
+  justify-content:center;
+
+  padding:18px;
+
+  background:rgba(0,0,0,.82);
+}
+
+.modal.show{
+  display:flex;
+}
+
+.modalCard{
+  width:min(410px,100%);
+
+  max-height:92vh;
+
+  overflow:auto;
+
+  padding:21px;
+
+  background:#151515;
+
+  border:1px solid #333;
+  border-radius:21px;
+}
+
+.modalCard h2{
+  margin-top:0;
+}
+
+.modalCard input,
+.modalCard textarea,
+.modalCard select{
+  width:100%;
+
+  padding:11px;
+
+  margin:5px 0;
+
+  border:1px solid #363636;
+  border-radius:11px;
+
+  background:#202020;
+  color:#fff;
+}
+
+.modalWide{
+  width:100%;
+
+  margin-top:8px;
+
+  padding:11px;
+
+  border:0;
+  border-radius:11px;
+
+  background:var(--gold);
+  color:#111;
+
+  font-weight:800;
+}
+
+.modalWide.secondary{
   background:#292929;
   color:#fff;
 }
 
-.adminGlobalStats{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:9px;
-  margin:14px 0;
+.setting{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  gap:10px;
+
+  padding:12px 0;
+
+  border-bottom:1px solid #292929;
 }
 
-.adminGlobalStat{
+/* =========================================
+   ADMIN
+========================================= */
+
+#adminModal{
+  z-index:250;
+}
+
+.adminStats{
+  display:grid;
+
+  grid-template-columns:
+    repeat(2,1fr);
+
+  gap:9px;
+
+  margin:13px 0;
+}
+
+.stat{
+  padding:13px;
+
   background:#1b1b1b;
+
   border:1px solid #303030;
   border-radius:14px;
-  padding:13px;
-}
 
-.adminGlobalStat b{
-  display:block;
-  font-size:22px;
-  color:#f0a51b;
-}
-
-#adminLiveStatus{
   font-size:12px;
-  opacity:.65;
-  margin-top:8px;
 }
 
-/* ================= GRAFİK ================= */
+.stat strong{
+  display:block;
 
-.adminChartBox{
+  margin-bottom:3px;
+
+  color:var(--gold);
+
+  font-size:24px;
+}
+
+#adminStatus{
+  color:#999;
+
+  font-size:12px;
+}
+
+.chartWrap{
   margin-top:14px;
+
+  padding:12px;
+
   background:#171717;
+
   border:1px solid #303030;
-  border-radius:16px;
-  padding:14px;
+  border-radius:14px;
 }
 
-.adminChartTitle{
+.chartHead{
   display:flex;
   justify-content:space-between;
-  align-items:center;
-  gap:8px;
-  margin-bottom:10px;
+
+  margin-bottom:8px;
 }
 
-.adminChartTitle b{color:#f0a51b}
+.chartHead strong{
+  color:var(--gold);
+}
 
-.adminChartLegend{
-  font-size:11px;
-  opacity:.65;
+.chartHead small{
+  color:#888;
 }
 
 #adminChart{
+  display:block;
+
   width:100%;
   height:190px;
-  display:block;
 }
 
-.adminDays{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:4px;
-  margin-top:6px;
-  font-size:10px;
-  opacity:.55;
-  text-align:center;
-}
-
-/* ================= TOAST ================= */
+/* =========================================
+   TOAST
+========================================= */
 
 #toast{
   position:fixed;
+
   z-index:500;
+
   left:50%;
-  bottom:92px;
-  transform:translate(-50%,20px);
-  background:#222;
+  bottom:100px;
+
+  max-width:88%;
+
+  padding:10px 14px;
+
+  background:#252525;
+
   border:1px solid #444;
   border-radius:12px;
-  padding:10px 14px;
-  opacity:0;
-  pointer-events:none;
-  transition:.2s;
-  max-width:88%;
+
   text-align:center;
+
+  opacity:0;
+
+  pointer-events:none;
+
+  transform:translate(-50%,15px);
+
+  transition:.2s;
 }
 
 #toast.show{
   opacity:1;
+
   transform:translate(-50%,0);
 }
 
-/* ================= LIGHT ================= */
+/* =========================================
+   LIGHT
+========================================= */
 
 body.light{
+  --bg:#f5f5f5;
+  --text:#111;
+
   background:#f5f5f5;
   color:#111;
 }
 
 body.light header,
 body.light .composer{
-  background:#f5f5f5;
+  background:rgba(245,245,245,.92);
 }
 
-body.light .ai,
-body.light #side,
-body.light .card,
-body.light .adminCard,
-body.light .box,
-body.light .quick button,
-body.light .usageCard{
+body.light .composerBox,
+body.light .message.assistant,
+body.light #sidebar,
+body.light .modalCard{
   background:#fff;
   color:#111;
 }
 
-body.light #input{
-  color:#111!important;
+body.light #promptInput{
+  color:#111 !important;
 }
 
-body.light .attachMenu{
+body.light #plusMenu{
   background:#fff;
-  border-color:#ddd;
 }
 
-body.light .attachMenu button{
+body.light #plusMenu button{
   color:#111;
 }
 
-@media(min-width:900px){
-  main{max-width:820px}
+body.light .quickButtons button{
+  background:#fff;
+  color:#111;
 }
+
 </style>
 </head>
 
-<body class="intro-active">
+<body>
 
-<!-- INTRO -->
-<div class="splash" id="splash">
-  <div class="hero">
-    <div class="logo">ZURNA AI</div>
-    <div class="bar"></div>
-    <div class="slogan">Zurnanın zırt dediği yer.</div>
+<!-- =====================================
+     INTRO
+===================================== -->
+
+<div id="splash">
+
+  <div class="splashInner">
+
+    <div class="splashLogo">
+      ZURNA AI
+    </div>
+
+    <div class="splashBar"></div>
+
+    <div class="splashSlogan">
+      Zurnanın zırt dediği yer.
+    </div>
+
   </div>
+
 </div>
 
-<!-- SOL MENÜ -->
+<!-- =====================================
+     SIDEBAR
+===================================== -->
+
 <div id="sideBackdrop"></div>
 
-<aside id="side">
+<aside id="sidebar">
 
-  <div class="sideTop">
+  <div class="sideHeader">
+
     <b>🌯 Zurna AI</b>
-    <button id="closeSide">×</button>
+
+    <button
+      class="sideClose"
+      id="closeSidebar"
+    >
+      ×
+    </button>
+
   </div>
 
-  <button class="newChat" id="newChat">
+  <button
+    class="sideWide primary"
+    id="newChatButton"
+  >
     ＋ Yeni sohbet
   </button>
 
-  <input id="searchChat" placeholder="🔎 Sohbet ara...">
+  <input
+    id="chatSearch"
+    placeholder="🔎 Sohbet ara..."
+  >
 
   <div id="history"></div>
 
-  <hr style="border-color:#292929;margin-top:22px">
+  <div class="usage">
 
-  <button class="wide" id="loginBtn">
+    <div class="usageHead">
+
+      <span>Ücretsiz kullanım</span>
+
+      <span id="usageText">
+        0 / 10
+      </span>
+
+    </div>
+
+    <div class="usageTrack">
+      <div id="usageFill"></div>
+    </div>
+
+  </div>
+
+  <button
+    class="sideWide"
+    id="loginButton"
+  >
     👤 Giriş yap
   </button>
 
-  <div class="usageCard">
-    <div class="usageTop">
-      <span>Ücretsiz kullanım</span>
-      <span id="usageText">0 / 10</span>
-    </div>
-
-    <div class="usageBar">
-      <div class="usageFill" id="usageFill"></div>
-    </div>
-  </div>
-
-  <button class="wide" id="settingsBtn">
+  <button
+    class="sideWide"
+    id="settingsButton"
+  >
     ⚙️ Ayarlar
   </button>
 
-  <button class="wide" id="themeBtn">
+  <button
+    class="sideWide"
+    id="themeButton"
+  >
     ☀️ Tema
   </button>
 
 </aside>
 
-<!-- AYARLAR -->
-<div id="settingsModal">
-  <div class="card">
+<!-- =====================================
+     HEADER
+===================================== -->
 
-    <h2>⚙️ Ayarlar</h2>
-
-    <div class="settingRow">
-      <span>Görünüm</span>
-      <select id="themeSelect">
-        <option value="dark">Koyu</option>
-        <option value="light">Açık</option>
-      </select>
-    </div>
-
-    <div class="settingRow">
-      <span>Enter ile gönder</span>
-      <input id="enterSend" type="checkbox" checked style="width:auto">
-    </div>
-
-    <div class="settingRow">
-      <span>Sohbetleri dışa aktar</span>
-      <button id="exportChats">Dışa aktar</button>
-    </div>
-
-    <div class="settingRow">
-      <span>Tüm yerel sohbetler</span>
-      <button id="clearLocalChats">Temizle</button>
-    </div>
-
-    <button class="wide" id="closeSettings">Kapat</button>
-
-  </div>
-</div>
-
-<!-- LOGIN -->
-<div id="loginModal">
-  <div class="card">
-
-    <h2>👤 Zurna hesabı</h2>
-
-    <input id="name" placeholder="Kullanıcı adı">
-
-    <input id="pass" type="password" placeholder="Şifre">
-
-    <button class="wide" id="doLogin">
-      Giriş yap / Kaydol
-    </button>
-
-    <button class="wide" id="closeLogin">
-      Kapat
-    </button>
-
-  </div>
-</div>
-
-<!-- PRO -->
-<div id="proModal">
-  <div class="card">
-
-    <h2>✨ Zurna AI Pro</h2>
-
-    <p>💬 Sınırsız mesaj*</p>
-    <p>🖼️ Sınırsız görüntü*</p>
-    <p>🚀 Daha gelişmiş AI modelleri</p>
-    <p>✨ Yeni Pro özellikleri</p>
-
-    <button class="wide" id="buyPro">
-      Pro'ya Geç
-    </button>
-
-    <button class="wide" id="closePro">
-      Kapat
-    </button>
-
-  </div>
-</div>
-
-<!-- ADMIN LOGIN -->
-<div id="adminLoginModal">
-  <div class="adminCard">
-
-    <h2>🔐 Zurna AI Admin</h2>
-
-    <p>Admin şifresini gir.</p>
-
-    <input id="adminPassword" type="password" placeholder="Admin şifresi">
-
-    <div id="adminError" style="display:none;color:#ff6b6b">
-      Şifre yanlış.
-    </div>
-
-    <div class="adminActions">
-      <button id="adminLoginGo">Giriş</button>
-      <button id="adminLoginClose">Kapat</button>
-    </div>
-
-  </div>
-</div>
-
-<!-- ADMIN -->
-<div id="adminPanel">
-  <div class="adminCard">
-
-    <h2>🌯 ZURNA AI | Admin</h2>
-
-    <p>Tüm cihazlardan canlı istatistikler</p>
-
-    <div class="adminGlobalStats">
-
-      <div class="adminGlobalStat">
-        <b id="admTotalUsers">0</b>
-        Toplam kullanıcı
-      </div>
-
-      <div class="adminGlobalStat">
-        <b id="admTodayUsers">0</b>
-        Bugün aktif
-      </div>
-
-      <div class="adminGlobalStat">
-        <b id="admTodayMessages">0</b>
-        Bugünkü mesaj
-      </div>
-
-      <div class="adminGlobalStat">
-        <b id="admTotalMessages">0</b>
-        Toplam mesaj
-      </div>
-
-    </div>
-
-    <div id="adminLiveStatus">
-      Veriler yükleniyor…
-    </div>
-
-    <div class="adminChartBox">
-
-      <div class="adminChartTitle">
-        <b>Son 7 Gün</b>
-        <span class="adminChartLegend">
-          Mesaj ● &nbsp; Kullanıcı ○
-        </span>
-      </div>
-
-      <canvas id="adminChart"></canvas>
-
-      <div class="adminDays" id="adminDays"></div>
-
-    </div>
-
-    <textarea
-      id="adminAnnouncement"
-      placeholder="Admin notu / duyuru..."
-    ></textarea>
-
-    <button
-      id="saveAdminAnnouncement"
-      style="width:100%"
-    >
-      Duyuruyu Kaydet
-    </button>
-
-    <div class="adminActions">
-      <button id="clearChatsAdmin">
-        Yerel Sohbetleri Temizle
-      </button>
-
-      <button id="adminLogout">
-        Çıkış
-      </button>
-    </div>
-
-  </div>
-</div>
-
-<div id="toast"></div>
-
-<!-- HEADER -->
 <header>
 
   <div class="headerLeft">
 
-    <button id="menuBtn">
+    <button
+      class="menuButton"
+      id="menuButton"
+    >
       ☰
     </button>
 
-    <div class="brand" id="secretAdminTrigger">
+    <div
+      class="brand"
+      id="adminTrigger"
+    >
       🌯 ZURNA AI
     </div>
 
   </div>
 
-  <button id="upgradeBtn">
+  <button
+    class="topButton"
+    id="proButton"
+  >
     Yükselt
   </button>
 
 </header>
 
-<!-- CHAT -->
+<!-- =====================================
+     MAIN
+===================================== -->
+
 <main>
 
-  <div class="welcome" id="welcome">
+  <section id="welcome">
 
     <h1>🌯 Zurna AI</h1>
 
-    <p>Ne merak ediyorsan sor.</p>
+    <p>
+      Ne merak ediyorsan sor.
+    </p>
 
-    <div class="quick">
+    <div class="quickButtons">
 
-      <button data-prompt="Bana bugün yeni bir şey öğret">
+      <button
+        data-prompt="Bana yeni ve ilginç bir şey öğret."
+      >
         💡 Bir şey öğret
       </button>
 
-      <button data-prompt="Bu metni daha iyi yazmama yardım et">
+      <button
+        data-prompt="Bir yazı yazmama yardım et."
+      >
         ✍️ Yazı yaz
       </button>
 
-      <button data-prompt="Bir kod sorununu çözmeme yardım et">
+      <button
+        data-prompt="Kod yazmama veya kod sorunumu çözmeme yardım et."
+      >
         💻 Kod yardımı
       </button>
 
-      <button data-prompt="Bir fikri birlikte geliştirelim">
+      <button
+        data-prompt="Benimle yeni bir fikir geliştir."
+      >
         🧠 Fikir üret
       </button>
 
     </div>
 
-  </div>
+  </section>
 
   <div id="chat"></div>
 
 </main>
 
-<!-- COMPOSER -->
+<!-- =====================================
+     COMPOSER
+===================================== -->
+
 <div class="composer">
 
   <div class="composerInner">
 
-    <div id="filePreview"></div>
+    <div id="attachmentPreview"></div>
 
-    <!-- + MENÜ -->
-    <div class="attachMenu" id="attachMenu">
+    <div id="plusMenu">
 
-      <button type="button" id="imagePickBtn">
-        🖼️ Görüntü
+      <button id="chooseImage">
+        🖼️ Görüntü / Fotoğraf
       </button>
 
-      <button type="button" id="filePickBtn">
+      <button id="chooseFile">
         📎 Dosya
       </button>
 
     </div>
 
-    <form class="box" id="form">
+    <form
+      class="composerBox"
+      id="composerForm"
+    >
 
       <button
         type="button"
-        class="iconBtn"
-        id="attachBtn"
-        title="Ekle"
+        class="iconButton"
+        id="plusButton"
       >
         ＋
       </button>
 
       <input
+        id="hiddenFileInput"
         type="file"
-        id="attachInput"
       >
 
       <textarea
-        id="input"
+        id="promptInput"
         rows="1"
         placeholder="Zurna AI'ye mesaj gönder..."
       ></textarea>
 
       <button
         type="button"
-        class="iconBtn"
-        id="voiceBtn"
-        title="Sesli konuş"
+        class="iconButton"
+        id="voiceButton"
+        title="Sesle yaz"
       >
         🎙️
       </button>
 
       <button
-        class="sendBtn"
-        id="sendBtn"
         type="submit"
+        id="sendButton"
       >
         ↑
       </button>
@@ -1109,123 +1215,326 @@ body.light .attachMenu button{
 
 </div>
 
+<!-- =====================================
+     LOGIN
+===================================== -->
+
+<div
+  class="modal"
+  id="loginModal"
+>
+
+  <div class="modalCard">
+
+    <h2>👤 Zurna hesabı</h2>
+
+    <input
+      id="usernameInput"
+      placeholder="Kullanıcı adı"
+    >
+
+    <input
+      id="passwordInput"
+      type="password"
+      placeholder="Şifre"
+    >
+
+    <button
+      class="modalWide"
+      id="loginSave"
+    >
+      Giriş yap / Kaydol
+    </button>
+
+    <button
+      class="modalWide secondary"
+      id="loginClose"
+    >
+      Kapat
+    </button>
+
+  </div>
+
+</div>
+
+<!-- =====================================
+     PRO
+===================================== -->
+
+<div
+  class="modal"
+  id="proModal"
+>
+
+  <div class="modalCard">
+
+    <h2>✨ Zurna AI Pro</h2>
+
+    <p>💬 Sınırsız mesaj*</p>
+
+    <p>🖼️ Sınırsız görüntü*</p>
+
+    <p>🚀 Daha gelişmiş modeller</p>
+
+    <p>✨ Yeni Pro özellikleri</p>
+
+    <button
+      class="modalWide"
+      id="buyPro"
+    >
+      Pro'ya Geç
+    </button>
+
+    <button
+      class="modalWide secondary"
+      id="proClose"
+    >
+      Kapat
+    </button>
+
+  </div>
+
+</div>
+
+<!-- =====================================
+     SETTINGS
+===================================== -->
+
+<div
+  class="modal"
+  id="settingsModal"
+>
+
+  <div class="modalCard">
+
+    <h2>⚙️ Ayarlar</h2>
+
+    <div class="setting">
+
+      <span>Tema</span>
+
+      <select id="themeSelect">
+
+        <option value="dark">
+          Koyu
+        </option>
+
+        <option value="light">
+          Açık
+        </option>
+
+      </select>
+
+    </div>
+
+    <div class="setting">
+
+      <span>
+        Enter ile gönder
+      </span>
+
+      <input
+        type="checkbox"
+        id="enterSend"
+        checked
+        style="width:auto"
+      >
+
+    </div>
+
+    <button
+      class="modalWide"
+      id="exportButton"
+    >
+      Sohbetleri dışa aktar
+    </button>
+
+    <button
+      class="modalWide secondary"
+      id="clearChatsButton"
+    >
+      Sohbetleri temizle
+    </button>
+
+    <button
+      class="modalWide secondary"
+      id="settingsClose"
+    >
+      Kapat
+    </button>
+
+  </div>
+
+</div>
+
+<!-- =====================================
+     ADMIN LOGIN
+===================================== -->
+
+<div
+  class="modal"
+  id="adminLoginModal"
+>
+
+  <div class="modalCard">
+
+    <h2>🔐 Admin</h2>
+
+    <input
+      id="adminPassword"
+      type="password"
+      placeholder="Admin şifresi"
+    >
+
+    <div
+      id="adminError"
+      style="
+        display:none;
+        color:#ff6b6b;
+        margin:5px 0;
+      "
+    >
+      Şifre yanlış.
+    </div>
+
+    <button
+      class="modalWide"
+      id="adminLogin"
+    >
+      Giriş
+    </button>
+
+    <button
+      class="modalWide secondary"
+      id="adminLoginClose"
+    >
+      Kapat
+    </button>
+
+  </div>
+
+</div>
+
+<!-- =====================================
+     ADMIN PANEL
+===================================== -->
+
+<div
+  class="modal"
+  id="adminModal"
+>
+
+  <div class="modalCard">
+
+    <h2>
+      🌯 ZURNA AI | Admin
+    </h2>
+
+    <div class="adminStats">
+
+      <div class="stat">
+
+        <strong id="statTotalUsers">
+          0
+        </strong>
+
+        Toplam kullanıcı
+
+      </div>
+
+      <div class="stat">
+
+        <strong id="statTodayUsers">
+          0
+        </strong>
+
+        Bugün aktif
+
+      </div>
+
+      <div class="stat">
+
+        <strong id="statTodayMessages">
+          0
+        </strong>
+
+        Bugünkü mesaj
+
+      </div>
+
+      <div class="stat">
+
+        <strong id="statTotalMessages">
+          0
+        </strong>
+
+        Toplam mesaj
+
+      </div>
+
+    </div>
+
+    <div id="adminStatus">
+      Veriler bekleniyor...
+    </div>
+
+    <div class="chartWrap">
+
+      <div class="chartHead">
+
+        <strong>
+          Son 7 Gün
+        </strong>
+
+        <small>
+          Mesaj — Kullanıcı
+        </small>
+
+      </div>
+
+      <canvas id="adminChart"></canvas>
+
+    </div>
+
+    <textarea
+      id="announcement"
+      placeholder="Admin notu / duyuru..."
+      rows="4"
+    ></textarea>
+
+    <button
+      class="modalWide"
+      id="saveAnnouncement"
+    >
+      Duyuruyu Kaydet
+    </button>
+
+    <button
+      class="modalWide secondary"
+      id="adminRefresh"
+    >
+      İstatistikleri Yenile
+    </button>
+
+    <button
+      class="modalWide secondary"
+      id="adminClose"
+    >
+      Çıkış
+    </button>
+
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
 <script>
+"use strict";
 
 /* =========================================
-   INTRO - TAKILMAYAN YENİ SİSTEM
-========================================= */
-
-(function(){
-
-  let finished = false;
-
-  function finishIntro(){
-
-    if(finished) return;
-
-    finished = true;
-
-    document.body.classList.remove("intro-active");
-
-    const splash = document.getElementById("splash");
-
-    if(splash){
-      splash.style.opacity = "0";
-      splash.style.visibility = "hidden";
-      splash.style.pointerEvents = "none";
-
-      setTimeout(function(){
-        if(splash && splash.parentNode){
-          splash.parentNode.removeChild(splash);
-        }
-      },100);
-    }
-  }
-
-  /*
-    Sayfa yeniden yüklenirse bile bu timer bağımsız çalışır.
-    animationend çalışmasa dahi ekran açılır.
-  */
-  window.setTimeout(finishIntro,3400);
-
-  const splash = document.getElementById("splash");
-
-  if(splash){
-
-    splash.addEventListener("animationend",function(event){
-
-      if(event.animationName === "bye"){
-        finishIntro();
-      }
-
-    });
-
-  }
-
-  /*
-    Tarayıcı sayfayı BFCache'den geri getirirse
-    intro kilidini kaldır.
-  */
-  window.addEventListener("pageshow",function(event){
-
-    if(event.persisted){
-      finishIntro();
-    }
-
-  });
-
-  /*
-    Güvenlik kilidi:
-    4 saniyeden sonra intro-active kesinlikle kalamaz.
-  */
-  window.setTimeout(function(){
-
-    document.body.classList.remove("intro-active");
-
-    const s = document.getElementById("splash");
-
-    if(s){
-      s.style.display = "none";
-    }
-
-  },4000);
-
-})();
-
-
-/* =========================================
-   TEMEL
+   AYARLAR
 ========================================= */
 
 const API_URL =
-  "https://nova-ai.faydin19.workers.dev";
-
-const chat =
-  document.getElementById("chat");
-
-const input =
-  document.getElementById("input");
-
-const welcome =
-  document.getElementById("welcome");
-
-const sendBtn =
-  document.getElementById("sendBtn");
-
-let messages = [];
-
-let currentChatId = null;
-
-let pendingFile = null;
-
-let isSending = false;
-
-
-/* =========================================
-   DEVICE ID
-========================================= */
-
-function getZurnaDeviceId(){
-
-  let id =
-    localStorage.getItem("zurna-devi
+  "https://nova-ai.faydin19.workers.dev
