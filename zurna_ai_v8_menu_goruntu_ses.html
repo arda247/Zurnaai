@@ -1,0 +1,507 @@
+<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Zurna AI</title><style>
+*{box-sizing:border-box}body{margin:0;background:#080808;color:#fff;font-family:system-ui;min-height:100vh}.splash{position:fixed;inset:0;z-index:9;background:radial-gradient(circle,#292929,#000 65%);display:grid;place-items:center;animation:bye .7s 2.6s forwards}.hero{text-align:center}.logo{font-size:clamp(50px,16vw,95px);font-weight:1000;letter-spacing:-5px;animation:pop .8s}.slogan{font-size:20px;font-weight:700;opacity:0;animation:up .7s .7s forwards}.bar{height:3px;background:white;width:0;margin:15px auto;animation:bar 1s 1s forwards}@keyframes pop{from{opacity:0;transform:scale(.6)}}@keyframes up{to{opacity:.8}}@keyframes bar{to{width:190px}}@keyframes bye{to{opacity:0;visibility:hidden;transform:scale(1.05)}}header{height:64px;border-bottom:1px solid #292929;display:flex;align-items:center;justify-content:space-between;padding:0 16px}.brand{font-size:22px;font-weight:900}button{background:#eee;color:#111;border:0;border-radius:12px;padding:10px 13px;font-weight:800}main{max-width:760px;margin:auto;padding:20px 16px 120px}.welcome{text-align:center;padding-top:20vh}.welcome h1{font-size:36px;margin:0}.welcome p{opacity:.55}.msg{padding:12px 14px;border-radius:17px;margin:10px 0;max-width:84%;line-height:1.45}.user{margin-left:auto;background:#eee;color:#111}.ai{background:#181818;border:1px solid #292929}.composer{position:fixed;bottom:0;left:0;right:0;padding:12px;background:#080808}.box{max-width:760px;margin:auto;display:flex;gap:8px;background:#171717;border:1px solid #333;border-radius:18px;padding:8px}input{flex:1;border:0;outline:0;background:transparent;color:#fff;font-size:16px;padding:10px}
+
+/* V8 + menu */
+.composerInner{position:relative;max-width:760px;margin:auto}
+.attachMenu{display:none;position:absolute;left:0;bottom:62px;z-index:80;width:210px;background:#1b1b1b;border:1px solid #383838;border-radius:16px;padding:7px;box-shadow:0 16px 45px #000a}
+.attachMenu.show{display:block}
+.attachMenu button{width:100%;display:flex;align-items:center;gap:10px;background:transparent;color:#fff;text-align:left;padding:11px;border-radius:10px}
+.attachMenu button:active{background:#2a2a2a}
+body.light .attachMenu{background:#fff;border-color:#ddd}
+body.light .attachMenu button{color:#111}
+@media(min-width:900px){.composerInner{max-width:820px}}
+</style>
+<style>
+#side{position:fixed;z-index:50;left:-290px;top:0;bottom:0;width:280px;background:#111;border-right:1px solid #292929;padding:14px;transition:.25s;overflow:auto}#side.open{left:0}
+.sideTop{display:flex;justify-content:space-between;align-items:center}.newChat{width:100%;margin:16px 0;background:#f0a51b}
+#history button{display:block;width:100%;text-align:left;margin:6px 0;background:#191919;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#loginModal,#proModal{display:none;position:fixed;inset:0;z-index:100;background:#000b;align-items:center;justify-content:center;padding:20px}
+.card{width:min(390px,100%);background:#151515;border:1px solid #333;border-radius:22px;padding:22px}.card h2{margin-top:0}
+.card input{width:100%;background:#222;border:1px solid #333;border-radius:12px;margin:6px 0;padding:12px}.wide{width:100%;margin-top:10px}
+.tools{display:flex;gap:8px;align-items:center}.tools select{background:#171717;color:#fff;border:1px solid #333;border-radius:12px;padding:9px}
+body.light{background:#f5f5f5;color:#111}body.light header,body.light .composer{background:#f5f5f5}body.light .ai{background:#fff;color:#111}</style>
+<style>
+#adminLoginModal,#adminPanel{display:none;position:fixed;inset:0;z-index:220;background:rgba(0,0,0,.88);align-items:center;justify-content:center;padding:18px}
+.adminCard{width:min(430px,100%);background:#121212;border:1px solid #343434;border-radius:22px;padding:22px;box-shadow:0 24px 80px #000}
+.adminCard h2{margin:0 0 8px}.adminCard p{opacity:.65}
+.adminCard input,.adminCard textarea{width:100%;box-sizing:border-box;background:#1d1d1d;color:#fff;border:1px solid #383838;border-radius:12px;padding:12px;margin:7px 0}
+.adminCard textarea{min-height:95px;resize:vertical}
+.adminActions{display:flex;gap:8px;margin-top:10px}.adminActions button{flex:1}
+.adminStats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0}
+.adminStat{background:#1b1b1b;border:1px solid #303030;border-radius:14px;padding:13px}
+.adminStat b{display:block;font-size:21px;color:#f0a51b}
+.adminNote{font-size:12px;opacity:.55;margin-top:12px}
+#secretAdminTrigger{cursor:pointer;user-select:none}
+</style>
+
+
+<style>
+/* Zurna AI V4: admin = black/orange only */
+#adminPanel button,#adminLoginModal button{background:#f0a51b;color:#111;border:0}
+#adminPanel .adminActions button:last-child,#adminLoginModal .adminActions button:last-child{background:#292929;color:#fff}
+.adminGlobalStats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:14px 0}
+.adminGlobalStat{background:#1b1b1b;border:1px solid #303030;border-radius:14px;padding:13px}
+.adminGlobalStat b{display:block;font-size:22px;color:#f0a51b}
+#adminLiveStatus{font-size:12px;opacity:.65;margin-top:8px}
+</style>
+
+<style>
+.adminChartBox{margin-top:14px;background:#171717;border:1px solid #303030;border-radius:16px;padding:14px}
+.adminChartTitle{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.adminChartTitle b{color:#f0a51b}.adminChartLegend{font-size:11px;opacity:.65}
+#adminChart{width:100%;height:190px;display:block}
+.adminDays{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:6px;font-size:10px;opacity:.55;text-align:center}
+</style>
+
+<style>
+:root{--z:#f0a51b;--bg:#080808;--panel:#151515;--line:#303030}
+html{scroll-behavior:smooth}
+body{overscroll-behavior:none}
+header{position:sticky;top:0;z-index:20;background:rgba(8,8,8,.88);backdrop-filter:blur(16px)}
+.brand{letter-spacing:-.4px}
+#side{box-shadow:18px 0 50px #0008}
+#sideBackdrop{display:none;position:fixed;inset:0;z-index:45;background:#0009;backdrop-filter:blur(2px)}
+#sideBackdrop.show{display:block}
+.msg{white-space:pre-wrap;word-break:break-word;position:relative}
+.msgActions{display:flex;gap:5px;margin-top:8px;opacity:.55}
+.msgActions button{padding:5px 8px;font-size:11px;background:#2a2a2a;color:#eee}
+.ai .msgActions{justify-content:flex-start}.user .msgActions{justify-content:flex-end}
+.composer{z-index:19;padding-bottom:max(12px,env(safe-area-inset-bottom))}
+.box{align-items:flex-end;box-shadow:0 8px 30px #0007}
+#input{min-height:42px;max-height:130px;resize:none;overflow:auto;font-family:inherit}
+.iconBtn{min-width:42px;height:42px;padding:0;display:grid;place-items:center;border-radius:12px;background:#242424;color:#fff}
+.sendBtn{min-width:42px;height:42px;padding:0;border-radius:12px;background:var(--z);font-size:20px}
+#attachInput{display:none}
+#filePreview{display:none;max-width:760px;margin:0 auto 7px;background:#151515;border:1px solid #333;border-radius:14px;padding:8px 12px;font-size:12px}
+#typingDots{display:inline-flex;gap:4px;align-items:center}
+#typingDots i{width:6px;height:6px;border-radius:50%;background:#aaa;animation:zdot 1s infinite}
+#typingDots i:nth-child(2){animation-delay:.15s}#typingDots i:nth-child(3){animation-delay:.3s}
+@keyframes zdot{0%,60%,100%{transform:translateY(0);opacity:.35}30%{transform:translateY(-4px);opacity:1}}
+.quick{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:22px}
+.quick button{background:#151515;color:#eee;border:1px solid #333;font-weight:600}
+.usageCard{margin:12px 0;background:#171717;border:1px solid #2d2d2d;border-radius:15px;padding:12px}
+.usageTop{display:flex;justify-content:space-between;font-size:12px;margin-bottom:7px}
+.usageBar{height:7px;background:#292929;border-radius:10px;overflow:hidden}.usageFill{height:100%;background:var(--z);width:0}
+.historyRow{display:flex;gap:4px;align-items:center}.historyRow>button:first-child{flex:1}.historyMore{width:36px!important;text-align:center!important;padding:8px!important}
+.modalTabs{display:flex;gap:7px;margin:12px 0}.modalTabs button{flex:1;background:#252525;color:#eee}.modalTabs button.active{background:var(--z);color:#111}
+.settingRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #292929}
+.settingRow select{background:#222;color:#fff;border:1px solid #333;border-radius:10px;padding:8px}
+#settingsModal{display:none;position:fixed;inset:0;z-index:120;background:#000b;align-items:center;justify-content:center;padding:20px}
+#toast{position:fixed;z-index:500;left:50%;bottom:92px;transform:translate(-50%,20px);background:#222;border:1px solid #444;border-radius:12px;padding:10px 14px;opacity:0;pointer-events:none;transition:.2s;max-width:88%;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+body.light #side,body.light .card,body.light .adminCard,body.light .box,body.light .quick button,body.light .usageCard{background:#fff;color:#111}
+body.light #side button,body.light .iconBtn{color:inherit}
+@media(min-width:900px){main{max-width:820px}.box,#filePreview{max-width:820px}}
+</style>
+
+
+<style>
+/* V7 mobile composer fix */
+#input{
+  flex:1;
+  width:100%;
+  border:0 !important;
+  outline:0 !important;
+  box-shadow:none !important;
+  background:transparent !important;
+  color:#fff !important;
+  caret-color:#f0a51b;
+  font-size:16px;
+  line-height:1.35;
+  padding:10px 4px;
+  border-radius:0;
+  -webkit-appearance:none;
+  appearance:none;
+}
+#input:focus,#input:focus-visible{
+  border:0 !important;
+  outline:0 !important;
+  box-shadow:none !important;
+  background:transparent !important;
+}
+#input::placeholder{color:#888;opacity:1}
+body.light #input{color:#111 !important}
+.box:focus-within{border-color:#555}
+.splash{z-index:1000}
+body.intro-active header,
+body.intro-active main,
+body.intro-active .composer,
+body.intro-active #side,
+body.intro-active #sideBackdrop{
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+</style>
+</head><body class="intro-active"><div class="splash"><div class="hero"><div class="logo">ZURNA AI</div><div class="bar"></div><div class="slogan">Zurnanın zırt dediği yer.</div></div></div>
+<div id="sideBackdrop"></div><aside id="side">
+ <div class="sideTop"><b>🌯 Zurna AI</b><button id="closeSide">×</button></div>
+ <button class="newChat" id="newChat">＋ Yeni sohbet</button>
+ <input id="searchChat" placeholder="🔎 Sohbet ara..." style="width:100%;background:#191919;border:1px solid #333;border-radius:12px;padding:10px">
+ <div id="history"></div>
+ <hr style="border-color:#292929;margin-top:22px">
+ <button class="wide" id="loginBtn">👤 Giriş yap</button>
+ <div class="usageCard">
+      <div class="usageTop"><span>Ücretsiz kullanım</span><span id="usageText">0 / 10</span></div>
+      <div class="usageBar"><div class="usageFill" id="usageFill"></div></div>
+    </div>
+    <button class="wide" id="settingsBtn">⚙️ Ayarlar</button>
+    <button class="wide" id="themeBtn">☀️ Tema</button>
+</aside>
+
+<div id="settingsModal"><div class="card">
+  <h2>⚙️ Ayarlar</h2>
+  <div class="settingRow"><span>Görünüm</span><select id="themeSelect"><option value="dark">Koyu</option><option value="light">Açık</option></select></div>
+  <div class="settingRow"><span>Enter ile gönder</span><input id="enterSend" type="checkbox" checked style="width:auto"></div>
+  <div class="settingRow"><span>Sohbetleri dışa aktar</span><button id="exportChats">Dışa aktar</button></div>
+  <div class="settingRow"><span>Tüm yerel sohbetler</span><button id="clearLocalChats">Temizle</button></div>
+  <button class="wide" id="closeSettings">Kapat</button>
+</div></div>
+<div id="toast"></div>
+
+<div id="loginModal"><div class="card"><h2>👤 Zurna hesabı</h2><p style="opacity:.6">Demo giriş — bilgiler yalnız bu cihazda tutulur.</p><input id="name" placeholder="Kullanıcı adı"><input id="pass" type="password" placeholder="Şifre"><button class="wide" id="doLogin">Giriş yap / Kaydol</button><button class="wide" onclick="loginModal.style.display='none'">Kapat</button></div></div>
+<div id="proModal"><div class="card"><h2>✨ Zurna AI Pro</h2><p>💬 Sınırsız mesaj</p><p>📷 Sınırsız fotoğraf</p><p>🚀 Yeni ve gelişmiş modellere erişim</p><button class="wide" onclick="alert('Ödeme sistemi daha sonra bağlanacak.')">Yükselt</button><button class="wide" onclick="proModal.style.display='none'">Kapat</button></div></div>
+
+<div id="adminLoginModal">
+  <div class="adminCard">
+    <h2>🔐 Zurna AI Admin</h2>
+    <p>Admin şifresini gir.</p>
+    <input id="adminPassword" type="password" placeholder="Admin şifresi">
+    <div id="adminError" style="display:none;color:#ff6b6b;margin-top:5px">Şifre yanlış.</div>
+    <div class="adminActions">
+      <button id="adminLoginGo">Giriş</button>
+      <button id="adminLoginClose">Kapat</button>
+    </div>
+  </div>
+</div>
+
+<div id="adminPanel">
+  <div class="adminCard">
+    <h2>🌯 ZURNA AI | Admin</h2>
+    <p>Bu cihazdaki Zurna AI verileri</p>
+    <div class="adminGlobalStats">
+      <div class="adminGlobalStat"><b id="admTotalUsers">0</b>Toplam kullanıcı/cihaz</div>
+      <div class="adminGlobalStat"><b id="admTodayUsers">0</b>Bugün aktif</div>
+      <div class="adminGlobalStat"><b id="admTodayMessages">0</b>Bugünkü mesaj</div>
+      <div class="adminGlobalStat"><b id="admTotalMessages">0</b>Toplam mesaj</div>
+    </div>
+    <div id="adminLiveStatus">Veriler yükleniyor…</div>
+    <div class="adminChartBox">
+      <div class="adminChartTitle"><b>Son 7 Gün</b><span class="adminChartLegend">Mesaj ● &nbsp; Kullanıcı ○</span></div>
+      <canvas id="adminChart"></canvas>
+      <div class="adminDays" id="adminDays"></div>
+    </div>
+    <textarea id="adminAnnouncement" placeholder="Admin notu / duyuru..."></textarea>
+    <button id="saveAdminAnnouncement" style="width:100%">Duyuruyu Kaydet</button>
+    <div class="adminActions">
+      <button id="clearChatsAdmin">Sohbetleri Temizle</button>
+      <button id="adminLogout">Çıkış</button>
+    </div>
+    <p class="adminNote">Not: Bu sürüm statik HTML'dir. Admin şifresi tarayıcı kodundan tamamen gizlenemez; gerçek yayında sunucu tarafı kimlik doğrulaması kullanılmalıdır.</p>
+  </div>
+</div>
+
+<header><div style="display:flex;align-items:center;gap:10px"><button id="menuBtn">☰</button><div class="brand" id="secretAdminTrigger" title="ZURNA AI">🌯 ZURNA AI</div></div><button id="upgradeBtn">Yükselt</button></header><main><div class="welcome" id="welcome"><h1>🌯 Zurna AI</h1><p>Ne merak ediyorsan sor.</p>
+    <div class="quick">
+      <button data-prompt="Bana bugün yeni bir şey öğret">💡 Bir şey öğret</button>
+      <button data-prompt="Bu metni daha iyi yazmama yardım et">✍️ Yazı yaz</button>
+      <button data-prompt="Bir kod sorununu çözmeme yardım et">💻 Kod yardımı</button>
+      <button data-prompt="Bir fikri birlikte geliştirelim">🧠 Fikir üret</button>
+    </div></div><div id="chat"></div></main><div class="composer">
+<div class="composerInner">
+<div id="filePreview"></div>
+<div class="attachMenu" id="attachMenu">
+  <button type="button" id="imagePickBtn">🖼️ <span>Görüntü</span></button>
+  <button type="button" id="filePickBtn">📎 <span>Dosya</span></button>
+</div>
+<form class="box" id="form">
+  <button type="button" class="iconBtn" id="attachBtn" title="Ekle">＋</button>
+  <input type="file" id="attachInput" accept="image/*,.txt,.md">
+  <textarea id="input" rows="1" placeholder="Zurna AI'ye mesaj gönder..."></textarea>
+  <button type="button" class="iconBtn" id="voiceBtn" title="Sesli konuşma">🎙️</button>
+  <button class="sendBtn" id="sendBtn" aria-label="Gönder">↑</button>
+</form></div></div><script>
+const API_URL="https://nova-ai.faydin19.workers.dev";
+let messages=[], pendingFile=null, isSending=false;
+const chat=document.querySelector("#chat"),input=document.querySelector("#input"),welcome=document.querySelector("#welcome");
+const sendBtn=document.querySelector("#sendBtn");
+
+function toast(t){const x=document.querySelector("#toast");x.textContent=t;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),1800)}
+function escapeText(t){return String(t??"")}
+function add(t,c,withActions=true){
+  welcome.style.display="none";
+  const d=document.createElement("div");d.className="msg "+c;
+  const body=document.createElement("div");body.textContent=escapeText(t);d.appendChild(body);
+  if(withActions){
+    const a=document.createElement("div");a.className="msgActions";
+    const copy=document.createElement("button");copy.type="button";copy.textContent="Kopyala";
+    copy.onclick=async()=>{try{await navigator.clipboard.writeText(body.textContent);toast("Kopyalandı")}catch{toast("Kopyalanamadı")}};
+    a.appendChild(copy);
+    if(c==="ai"){
+      const retry=document.createElement("button");retry.type="button";retry.textContent="↻";
+      retry.onclick=()=>regenerate();a.appendChild(retry);
+    }
+    d.appendChild(a);
+  }
+  chat.appendChild(d);window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});return {wrap:d,body};
+}
+function renderAll(){
+  chat.innerHTML="";
+  if(!messages.length){welcome.style.display="block";return}
+  messages.forEach(m=>add(m.content,m.role==="user"?"user":"ai"));
+}
+function autoGrow(){input.style.height="auto";input.style.height=Math.min(input.scrollHeight,130)+"px"}
+input.addEventListener("input",autoGrow);
+
+async function sendMessage(text){
+  const t=(text??input.value).trim();if(!t||isSending)return;
+  isSending=true;sendBtn.disabled=true;input.value="";autoGrow();
+  add(t,"user");messages.push({role:"user",content:t});saveCurrent(true);updateUsage();
+  const w=add("","ai",false);w.body.innerHTML='<span id="typingDots"><i></i><i></i><i></i></span>';
+  try{
+    const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+      messages,device_id:getZurnaDeviceId(),username:localStorage.getItem("zurna-user")||null
+    })});
+    const j=await r.json();const a=j.reply||j.error||"Bir hata oluştu.";
+    w.body.textContent=a;
+    const acts=document.createElement("div");acts.className="msgActions";
+    const cp=document.createElement("button");cp.type="button";cp.textContent="Kopyala";cp.onclick=()=>navigator.clipboard.writeText(a).then(()=>toast("Kopyalandı"));
+    const rt=document.createElement("button");rt.type="button";rt.textContent="↻";rt.onclick=()=>regenerate();
+    acts.append(cp,rt);w.wrap.appendChild(acts);
+    messages.push({role:"assistant",content:a});saveCurrent(true);
+  }catch(e){w.body.textContent="Bağlantı kurulamadı.";toast("Bağlantı hatası")}
+  finally{isSending=false;sendBtn.disabled=false;pendingFile=null;document.querySelector("#filePreview").style.display="none"}
+}
+document.querySelector("#form").onsubmit=e=>{e.preventDefault();sendMessage()};
+async function regenerate(){
+  if(isSending)return;
+  if(messages.at(-1)?.role==="assistant")messages.pop();
+  const last=[...messages].reverse().find(m=>m.role==="user");if(!last)return;
+  renderAll();messages.pop();await sendMessage(last.content);
+}
+document.querySelectorAll(".quick button").forEach(b=>b.onclick=()=>sendMessage(b.dataset.prompt));
+input.addEventListener("keydown",e=>{
+  const enterSend=document.querySelector("#enterSend")?.checked!==false;
+  if(e.key==="Enter"&&!e.shiftKey&&enterSend){e.preventDefault();sendMessage()}
+});
+</script>
+<script>
+const side=document.querySelector("#side"),historyBox=document.querySelector("#history"),backdrop=document.querySelector("#sideBackdrop");
+let currentChatId=null;
+let chats=[];try{chats=JSON.parse(localStorage.getItem("zurna-chats")||"[]")}catch{}
+function openSide(){side.classList.add("open");backdrop.classList.add("show");renderHistory()}
+function closeSide(){side.classList.remove("open");backdrop.classList.remove("show")}
+document.querySelector("#menuBtn").onclick=openSide;document.querySelector("#closeSide").onclick=closeSide;backdrop.onclick=closeSide;
+document.querySelector("#upgradeBtn").onclick=()=>document.querySelector("#proModal").style.display="flex";
+document.querySelector("#loginBtn").onclick=()=>document.querySelector("#loginModal").style.display="flex";
+document.querySelector("#doLogin").onclick=()=>{let n=document.querySelector("#name").value.trim();if(!n)return;localStorage.setItem("zurna-user",n);document.querySelector("#loginBtn").textContent="👤 "+n;document.querySelector("#loginModal").style.display="none";toast("Giriş yapıldı")};
+let u=localStorage.getItem("zurna-user");if(u)document.querySelector("#loginBtn").textContent="👤 "+u;
+
+function saveCurrent(silent=false){
+  if(!messages.length)return;
+  const title=(messages.find(x=>x.role==="user")?.content||"Sohbet").slice(0,42);
+  if(!currentChatId)currentChatId=Date.now();
+  const item={id:currentChatId,title,messages:[...messages],updatedAt:Date.now()};
+  const i=chats.findIndex(c=>c.id===currentChatId);
+  if(i>=0)chats[i]=item;else chats.unshift(item);
+  chats.sort((a,b)=>(b.updatedAt||b.id)-(a.updatedAt||a.id));chats=chats.slice(0,50);
+  localStorage.setItem("zurna-chats",JSON.stringify(chats));
+  if(!silent)renderHistory();
+}
+function deleteChat(id){chats=chats.filter(c=>c.id!==id);localStorage.setItem("zurna-chats",JSON.stringify(chats));if(currentChatId===id){currentChatId=null;messages=[];renderAll()}renderHistory()}
+function renameChat(id){const c=chats.find(x=>x.id===id);if(!c)return;const n=prompt("Sohbet adı",c.title);if(n?.trim()){c.title=n.trim().slice(0,50);localStorage.setItem("zurna-chats",JSON.stringify(chats));renderHistory()}}
+function renderHistory(filter=""){
+  historyBox.innerHTML="";
+  chats.filter(c=>c.title.toLowerCase().includes(filter.toLowerCase())).forEach(c=>{
+    const row=document.createElement("div");row.className="historyRow";
+    const b=document.createElement("button");b.textContent="💬 "+c.title;
+    b.onclick=()=>{saveCurrent(true);currentChatId=c.id;messages=[...c.messages];renderAll();closeSide()};
+    const more=document.createElement("button");more.className="historyMore";more.textContent="⋯";
+    more.onclick=()=>{const a=prompt("1 = yeniden adlandır\n2 = sil");if(a==="1")renameChat(c.id);if(a==="2"&&confirm("Sohbet silinsin mi?"))deleteChat(c.id)};
+    row.append(b,more);historyBox.appendChild(row)
+  })
+}
+document.querySelector("#newChat").onclick=()=>{saveCurrent(true);currentChatId=null;messages=[];renderAll();closeSide()};
+document.querySelector("#searchChat").oninput=e=>renderHistory(e.target.value);
+window.addEventListener("beforeunload",()=>saveCurrent(true));
+renderHistory();
+
+function usageKey(){return "zurna-usage-"+new Date().toISOString().slice(0,10)}
+function updateUsage(){
+  let n=Number(localStorage.getItem(usageKey())||0);
+  const userMsgs=messages.filter(m=>m.role==="user").length;
+  if(userMsgs>n){n=userMsgs;localStorage.setItem(usageKey(),n)}
+  document.querySelector("#usageText").textContent=n+" / 10";
+  document.querySelector("#usageFill").style.width=Math.min(100,n/10*100)+"%";
+}
+updateUsage();
+
+const savedTheme=localStorage.getItem("zurna-theme")||"dark";
+function applyTheme(v){document.body.classList.toggle("light",v==="light");localStorage.setItem("zurna-theme",v);document.querySelector("#themeSelect").value=v}
+applyTheme(savedTheme);
+document.querySelector("#themeBtn").onclick=()=>applyTheme(document.body.classList.contains("light")?"dark":"light");
+document.querySelector("#settingsBtn").onclick=()=>document.querySelector("#settingsModal").style.display="flex";
+document.querySelector("#closeSettings").onclick=()=>document.querySelector("#settingsModal").style.display="none";
+document.querySelector("#themeSelect").onchange=e=>applyTheme(e.target.value);
+document.querySelector("#clearLocalChats").onclick=()=>{if(confirm("Tüm yerel sohbetler silinsin mi?")){chats=[];localStorage.removeItem("zurna-chats");currentChatId=null;messages=[];renderAll();renderHistory();toast("Sohbetler temizlendi")}};
+document.querySelector("#exportChats").onclick=()=>{
+  const blob=new Blob([JSON.stringify(chats,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="zurna-ai-sohbetler.json";a.click();URL.revokeObjectURL(a.href)
+};
+</script>
+<script>
+const attachBtn=document.querySelector("#attachBtn"),attachInput=document.querySelector("#attachInput"),filePreview=document.querySelector("#filePreview");
+const attachMenu=document.querySelector("#attachMenu"),imagePickBtn=document.querySelector("#imagePickBtn"),filePickBtn=document.querySelector("#filePickBtn");
+attachBtn.onclick=(e)=>{e.stopPropagation();attachMenu.classList.toggle("show")};
+imagePickBtn.onclick=()=>{attachInput.accept="image/*";attachMenu.classList.remove("show");attachInput.click()};
+filePickBtn.onclick=()=>{attachInput.accept=".txt,.md,text/plain,text/markdown";attachMenu.classList.remove("show");attachInput.click()};
+document.addEventListener("click",e=>{if(!attachMenu.contains(e.target)&&e.target!==attachBtn)attachMenu.classList.remove("show")});
+attachInput.onchange=()=>{
+  const f=attachInput.files?.[0];if(!f)return;
+  pendingFile=f;filePreview.style.display="block";
+  filePreview.textContent="📎 "+f.name+" — seçildi. Bu sürümde dosya AI'ya henüz gönderilmiyor.";
+};
+const voiceBtn=document.querySelector("#voiceBtn");
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(SR){
+  voiceBtn.onclick=()=>{const r=new SR();r.lang="tr-TR";r.interimResults=false;r.onstart=()=>toast("Dinliyorum…");r.onresult=e=>{input.value+=(input.value?" ":"")+e.results[0][0].transcript;autoGrow()};r.onerror=()=>toast("Ses algılanamadı");r.start()}
+}else{voiceBtn.onclick=()=>toast("Bu tarayıcı sesle yazmayı desteklemiyor")}
+</script>
+<script>
+(() => {
+  const ADMIN_PASSWORD = "1234"; // Yayına almadan önce değiştir.
+  let adminTapCount = 0, adminTapTimer = null;
+  const trigger = document.getElementById("secretAdminTrigger");
+  const loginModal = document.getElementById("adminLoginModal");
+  const panel = document.getElementById("adminPanel");
+  const pass = document.getElementById("adminPassword");
+  const err = document.getElementById("adminError");
+
+
+  function drawAdminChart(rows){
+    const canvas=document.getElementById("adminChart");
+    const daysBox=document.getElementById("adminDays");
+    if(!canvas || !daysBox) return;
+    const now=new Date(), days=[];
+    for(let i=6;i>=0;i--){
+      const d=new Date(now); d.setDate(now.getDate()-i);
+      const key=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+      const found=(rows||[]).find(x=>x.day===key)||{};
+      days.push({label:d.toLocaleDateString("tr-TR",{weekday:"short"}),messages:Number(found.messages||0),users:Number(found.users||0)});
+    }
+    daysBox.innerHTML=days.map(d=>"<span>"+d.label+"</span>").join("");
+    const ratio=window.devicePixelRatio||1, rect=canvas.getBoundingClientRect();
+    const w=Math.max(280,Math.floor(rect.width)), h=190;
+    canvas.width=w*ratio; canvas.height=h*ratio;
+    const ctx=canvas.getContext("2d"); ctx.scale(ratio,ratio); ctx.clearRect(0,0,w,h);
+    const pad={l:30,r:10,t:14,b:18}, cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
+    const max=Math.max(1,...days.map(d=>Math.max(d.messages,d.users)));
+    const y=v=>pad.t+ch-(v/max)*ch, x=i=>pad.l+(cw/(days.length-1))*i;
+    ctx.strokeStyle="#333"; ctx.lineWidth=1;
+    for(let i=0;i<=4;i++){const yy=pad.t+(ch/4)*i;ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(w-pad.r,yy);ctx.stroke();ctx.fillStyle="#777";ctx.font="10px sans-serif";ctx.textAlign="right";ctx.fillText(String(Math.round(max*(1-i/4))),pad.l-6,yy+3)}
+    ctx.strokeStyle="#f0a51b";ctx.lineWidth=3;ctx.lineJoin="round";ctx.lineCap="round";ctx.beginPath();
+    days.forEach((d,i)=>i?ctx.lineTo(x(i),y(d.messages)):ctx.moveTo(x(i),y(d.messages)));ctx.stroke();
+    days.forEach((d,i)=>{ctx.fillStyle="#f0a51b";ctx.beginPath();ctx.arc(x(i),y(d.messages),3.5,0,Math.PI*2);ctx.fill()});
+    ctx.strokeStyle="#f5d39a";ctx.lineWidth=2;ctx.setLineDash([5,5]);ctx.beginPath();
+    days.forEach((d,i)=>i?ctx.lineTo(x(i),y(d.users)):ctx.moveTo(x(i),y(d.users)));ctx.stroke();ctx.setLineDash([]);
+    days.forEach((d,i)=>{ctx.fillStyle="#171717";ctx.strokeStyle="#f5d39a";ctx.lineWidth=2;ctx.beginPath();ctx.arc(x(i),y(d.users),3.5,0,Math.PI*2);ctx.fill();ctx.stroke()});
+  }
+
+  async function refreshAdmin(){
+    document.getElementById("adminAnnouncement").value =
+      localStorage.getItem("zurna-admin-announcement") || "";
+
+    const status = document.getElementById("adminLiveStatus");
+    status.textContent = "Tüm cihazlardan veriler yükleniyor…";
+
+    try{
+      const r = await fetch("https://nova-ai.faydin19.workers.dev/admin/stats");
+      if(!r.ok) throw new Error("HTTP " + r.status);
+      const s = await r.json();
+
+      document.getElementById("admTotalUsers").textContent = s.totalUsers ?? 0;
+      document.getElementById("admTodayUsers").textContent = s.todayUsers ?? 0;
+      document.getElementById("admTodayMessages").textContent = s.todayMessages ?? 0;
+      document.getElementById("admTotalMessages").textContent = s.totalMessages ?? 0;
+      window.__zurnaLast7Days=s.last7Days||[]; drawAdminChart(window.__zurnaLast7Days); status.textContent = "● Canlı merkezi veriler";
+    }catch(e){
+      status.textContent = "İstatistikler alınamadı: " + e.message;
+    }
+  }
+
+  trigger.addEventListener("click", () => {
+    adminTapCount++;
+    clearTimeout(adminTapTimer);
+    adminTapTimer=setTimeout(()=>adminTapCount=0,3500);
+    if(adminTapCount>=10){
+      adminTapCount=0;
+      loginModal.style.display="flex";
+      pass.value="";
+      err.style.display="none";
+      setTimeout(()=>pass.focus(),50);
+    }
+  });
+
+  function adminLogin(){
+    if(pass.value===ADMIN_PASSWORD){
+      loginModal.style.display="none";
+      panel.style.display="flex";
+      err.style.display="none";
+      refreshAdmin();
+    } else {
+      err.style.display="block";
+      pass.value="";
+      pass.focus();
+    }
+  }
+
+  window.addEventListener("resize",()=>{if(window.__zurnaLast7Days) drawAdminChart(window.__zurnaLast7Days)});
+  document.getElementById("adminLoginGo").onclick=adminLogin;
+  pass.addEventListener("keydown",e=>{if(e.key==="Enter")adminLogin()});
+  document.getElementById("adminLoginClose").onclick=()=>loginModal.style.display="none";
+  document.getElementById("adminLogout").onclick=()=>panel.style.display="none";
+
+  document.getElementById("saveAdminAnnouncement").onclick=()=>{
+    localStorage.setItem("zurna-admin-announcement",document.getElementById("adminAnnouncement").value);
+    alert("Admin notu kaydedildi.");
+  };
+
+  document.getElementById("clearChatsAdmin").onclick=()=>{
+    if(confirm("Bu cihazdaki kayıtlı sohbetler silinsin mi?")){
+      localStorage.removeItem("zurna-chats");
+      if(typeof chats!=="undefined") chats=[];
+      if(typeof renderHistory==="function") renderHistory();
+      refreshAdmin();
+    }
+  };
+})();
+</script>
+
+
+<script>
+function getZurnaDeviceId(){
+  let id=localStorage.getItem("zurna-device-id");
+  if(!id){
+    if(window.crypto && crypto.randomUUID) id=crypto.randomUUID();
+    else id="zurna-"+Date.now()+"-"+Math.random().toString(36).slice(2);
+    localStorage.setItem("zurna-device-id",id);
+  }
+  return id;
+}
+</script>
+
+
+<script>
+(() => {
+  const splash = document.querySelector(".splash");
+  function finishIntro(){
+    document.body.classList.remove("intro-active");
+    if(splash) splash.style.display="none";
+  }
+  if(splash) splash.addEventListener("animationend", e => {
+    if(e.animationName === "bye") finishIntro();
+  });
+  setTimeout(finishIntro, 3600);
+})();
+</script>
+
+</body></html>
